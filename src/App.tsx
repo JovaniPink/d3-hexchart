@@ -21,7 +21,8 @@ function App() {
   // will be called initially and on every data change
   React.useEffect(() => {
     setAppState({ loading: true, data: null });
-    const apiURL = "";
+    const apiURL =
+      "https://raw.githubusercontent.com/JovaniPink/d3-hexchart/main/data/nba-shot-chart-processed.csv";
     fetch(apiURL)
       .then((res) => res.json())
       .then((data) => {
