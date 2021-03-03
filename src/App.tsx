@@ -79,7 +79,7 @@ function App() {
           )
           .attr("transform", (d) => `translate(${d.x},${d.y})`)
           .style("opacity", 0.4)
-          .style("fill", (d) => (d.zone == "3" ? "#e82357" : "#737aea"))
+          .style("fill", (d) => (d.zone == "3" ? "#db00ff" : "#0047ff"))
           .on("mouseenter", function (event, value) {
             const index = svg.selectAll(".hexbin").nodes().indexOf(this);
             console.log(event, index, Object.entries(value));
