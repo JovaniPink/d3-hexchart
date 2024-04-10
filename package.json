@@ -51,6 +51,6 @@
   },
   "devDependencies": {
     "@types/d3": "6.7.0",
-    "@types/d3-hexbin": "0.2.3"
+    "@types/d3-hexbin": "0.2.5"
   }
 }
