@@ -12,29 +12,11 @@ const d3 = {
 };
 
 function App() {
-  const [appState, setAppState] = React.useState({
-    loading: false,
-    data: null,
-  });
   const svgRef = React.useRef<SVGSVGElement>(null);
 
-  // will be called initially and on every data change
   React.useEffect(() => {
-    setAppState({ loading: true, data: null });
-    const apiURL =
-      "https://raw.githubusercontent.com/JovaniPink/d3-hexchart/main/data/nba-shot-chart-processed.csv";
-    fetch(apiURL)
-      .then((res) => res.json())
-      .then((data) => {
-        data.forEach((d: any) => {
-          d.x = +d.x;
-          d.y = +d.y;
-          d.make = +d.make;
-        });
-        return setAppState({ loading: false, data: data });
-      });
-
     const svg = D3.select(svgRef.current);
+    svg.selectAll("*").remove();
 
     const width = 954;
     const height = width / 1.422475106685633;
@@ -74,12 +56,12 @@ function App() {
           .attr("class", "hexbin")
           .attr("d", (d) =>
             hexbin.hexagon(
-              d.zone == "3" ? size3(d.fga) * 11 : size2(d.fga) * 11
+              d.zone === "3" ? size3(d.fga) * 11 : size2(d.fga) * 11
             )
           )
           .attr("transform", (d) => `translate(${d.x},${d.y})`)
           .style("opacity", 0.4)
-          .style("fill", (d) => (d.zone == "3" ? "#db00ff" : "#0047ff"))
+          .style("fill", (d) => (d.zone === "3" ? "#db00ff" : "#0047ff"))
           .on("mouseenter", function (event, value) {
             const index = svg.selectAll(".hexbin").nodes().indexOf(this);
             console.log(event, index, Object.entries(value));
@@ -207,7 +189,7 @@ function App() {
     }
 
     drawCourt(svg);
-  }, [setAppState]);
+  }, []);
 
   return (
     <>
