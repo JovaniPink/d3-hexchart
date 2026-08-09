@@ -1,0 +1,22 @@
+{
+  "schemaVersion": 1,
+  "player": {
+    "name": "Ja Morant",
+    "nbaPlayerId": 1629630
+  },
+  "season": "2019-20",
+  "seasonType": "Regular Season",
+  "metric": "FGA",
+  "expected": {
+    "attempts": 937,
+    "makes": 447,
+    "zones": ["2", "3"]
+  },
+  "source": {
+    "name": "NBA Stats shot chart",
+    "url": "https://www.nba.com/stats/player/1629630/shooting?Season=2019-20&SeasonType=Regular%20Season",
+    "snapshotFile": "data/nba-shot-chart-processed.csv",
+    "snapshotCommit": "7eb8d3f6cdd9887ba488a8ca795f66920ae0b7b6",
+    "snapshotCommittedAt": "2020-12-26T11:35:25-05:00"
+  }
+}
