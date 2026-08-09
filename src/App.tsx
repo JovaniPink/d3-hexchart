@@ -1,6 +1,6 @@
 import * as React from "react";
 import "./App.css";
-import zonehexdataflat from "./data-processed/hexes.json";
+import shotChartData from "./data-processed/hexes.json";
 import * as D3 from "d3";
 //https://github.com/d3/d3-hexbin
 //https://github.com/d3/d3-hexbin/issues/16
@@ -13,6 +13,7 @@ const d3 = {
 
 function App() {
   const svgRef = React.useRef<SVGSVGElement>(null);
+  const { metadata, hexes } = shotChartData;
 
   React.useEffect(() => {
     const svg = D3.select(svgRef.current);
@@ -27,8 +28,11 @@ function App() {
     const whratio =
       (x.domain()[1] - x.domain()[0]) / (y.domain()[1] - y.domain()[0]);
     const binRadius = 15;
-    const size3 = D3.scaleSqrt().domain([1, 500]);
-    const size2 = D3.scaleLog().domain([1, 1000]);
+    const maxAttempts = D3.max(hexes, (bin) => bin.fga) ?? 1;
+    const size = D3.scaleSqrt()
+      .domain([1, maxAttempts])
+      .range([4, binRadius - 1])
+      .clamp(true);
     const hexbin = d3
       .hex()
       .x(function (d: any) {
@@ -49,16 +53,21 @@ function App() {
 
     svg
       .selectAll("path.hexbin")
-      .data(zonehexdataflat)
+      .data(hexes)
       .join((enter) =>
         enter
           .append("path")
           .attr("class", "hexbin")
-          .attr("d", (d) =>
-            hexbin.hexagon(
-              d.zone === "3" ? size3(d.fga) * 11 : size2(d.fga) * 11
-            )
+          .attr("role", "graphics-symbol")
+          .attr("tabindex", 0)
+          .attr(
+            "aria-label",
+            (d) =>
+              `${d.fgm} ${d.fgm === 1 ? "make" : "makes"} on ${d.fga} ${
+                d.fga === 1 ? "attempt" : "attempts"
+              } in a ${d.zone}-point zone`,
           )
+          .attr("d", (d) => hexbin.hexagon(size(d.fga)))
           .attr("transform", (d) => `translate(${d.x},${d.y})`)
           .style("opacity", 0.4)
           .style("fill", (d) => (d.zone === "3" ? "#db00ff" : "#0047ff"))
@@ -189,7 +198,7 @@ function App() {
     }
 
     drawCourt(svg);
-  }, []);
+  }, [hexes]);
 
   return (
     <>
@@ -200,39 +209,36 @@ function App() {
         </p>
         <ul className="details">
           <li className="">
-            Ja
-            <br /> <strong>Morant</strong>
+            Player
+            <br /> <strong>{metadata.player}</strong>
           </li>
           <li className="">
             Season
-            <br /> <strong>2019-20</strong>
+            <br /> <strong>{metadata.season}</strong>
           </li>
           <li className="">
             Season Type
-            <br /> <strong>Regular Season</strong>
+            <br /> <strong>{metadata.seasonType}</strong>
           </li>
           <li className="">
             Field Goal Type
-            <br /> <strong>FGA</strong>
+            <br /> <strong>{metadata.metric}</strong>
           </li>
         </ul>
-        <div id="bar">
-          <div className="button-row">
-            <button className="button">Update Data</button>
-            <button className="button-reset">Reset Data</button>
-          </div>
-          <div className="notify">
-            <span>Get notified when I release new stuff!</span>
-            <span>@JovaniPink</span>
-          </div>
-        </div>
+        <p className="data-summary">
+          {metadata.attempts} attempts, {metadata.makes} makes, and {hexes.length}{" "}
+          deterministic hex bins. Source snapshot checked against{" "}
+          <a href={metadata.source.url}>NBA Stats</a>.
+        </p>
       </header>
 
       <div className="container">
-        <svg ref={svgRef}></svg>
+        <svg
+          ref={svgRef}
+          role="graphics-document"
+          aria-label={`${metadata.player} ${metadata.season} ${metadata.seasonType} shot chart`}
+        ></svg>
       </div>
-
-      <footer>Footer</footer>
     </>
   );
 }

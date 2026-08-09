@@ -23,7 +23,11 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
+    "data:generate": "node scripts/generate-hexes.mjs",
+    "data:check": "node scripts/generate-hexes.mjs --check",
     "test": "vitest run",
+    "check": "npm run data:check && npm test && npm run build",
+    "audit:dependencies": "npm audit --audit-level=low",
     "preview": "vite preview"
   },
   "browserslist": {
