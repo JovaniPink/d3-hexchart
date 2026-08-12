@@ -27,6 +27,7 @@
     "data:check": "node scripts/generate-hexes.mjs --check",
     "test": "vitest run",
     "check": "npm run data:check && npm test && npm run build",
+    "audit:production": "npm audit --omit=dev --audit-level=low",
     "audit:dependencies": "npm audit --audit-level=low",
     "preview": "vite preview"
   },
@@ -45,7 +46,7 @@
   "devDependencies": {
     "@testing-library/jest-dom": "7.0.1",
     "@testing-library/react": "16.3.2",
-    "@testing-library/user-event": "14.6.3",
+    "@testing-library/user-event": "14.6.4",
     "@types/d3": "7.4.3",
     "@types/d3-hexbin": "0.2.5",
     "@types/node": "26.2.0",

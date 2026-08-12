@@ -7,10 +7,15 @@ visualization.
 
 ## Architecture and data contract
 
-React owns the page lifecycle and SVG container. On mount, D3 draws the court
-and binds the generated records in `src/data-processed/hexes.json` to the chart.
-`d3-hexbin` generates each hexagon path, while the record's coordinates, shot
-zone, and field-goal-attempt count control its position, color, and size.
+React owns page state and the inspected-bin status message. The rendering module
+in `src/shot-chart.ts` owns the SVG lifecycle: D3 draws the court and binds the
+generated records in `src/data-processed/hexes.json` to the chart. `d3-hexbin`
+generates each atomic hexagon path, while the record's coordinates, shot zone,
+and field-goal-attempt count control its position, color, and size. The chart
+uses a fixed coordinate system inside a responsive SVG view box, so resizing the
+page does not reinterpret the source data. Bins outside that fixed plotting
+frame remain in provenance totals and are reported in a coverage note instead
+of becoming invisible or off-canvas focus targets.
 
 The application does not fetch live NBA data. Its repository authority is the
 937-row snapshot in `data/nba-shot-chart-processed.csv`, paired with the
@@ -43,8 +48,9 @@ Reference material:
 
 ## Local development
 
-Use Node.js 22.12.0 or newer and npm 11.19.0 (the version declared in
-`package.json`). Install the locked dependency graph before running the app:
+Use Node.js 22.12.0 or newer. Node 24 is the current local line in `.nvmrc`, and
+npm 11.19.0 is the package manager declared by `package.json`. Install the
+locked dependency graph before running the app:
 
 ```bash
 npm ci
@@ -60,21 +66,39 @@ Run the same local gates before committing or merging any change:
 
 ```bash
 npm run check
+npm run audit:production
 npm run audit:dependencies
 ```
 
 `npm run check` verifies generated-data freshness, runs the Vitest UI and
 preprocessing suites, type-checks the project, and creates the optimized,
-content-hashed static artifact in `dist`. CI repeats that contract from
-`npm ci`, then audits the complete locked dependency graph. Deployment is a
-separate operation; a successful build does not by itself confirm that `dist`
-was published.
+content-hashed static artifact in `dist`. CI repeats that contract from `npm ci`
+on Node 22.12 and Node 24. The production audit covers only code shipped to the
+browser; the complete audit also covers development and build tooling. Both use
+the low-severity threshold. Deployment is a separate operation; a successful
+build does not by itself confirm that `dist` was published.
+
+## Dependency update policy
+
+Renovate groups compatible non-major updates. Every major update—including the
+npm 12 runtime/tooling line—requires explicit Dependency Dashboard approval.
+Approval may open a compatibility PR; it does not authorize a merge. Each exact
+head must still pass the locked install, data contract, tests, build, both audit
+scopes, and hosted Node matrix without force or legacy-peer resolution.
 
 ## Accessibility and privacy
 
-The SVG has an accessible chart label, and every generated hex is keyboard
-focusable with its make/attempt/zone summary exposed to assistive technology.
-The site has no analytics, account, form, cookie, or live-data request.
+The SVG is a `graphics-document`, and every generated hex is an atomic
+`graphics-symbol` with a make/attempt/percentage label. The nine long-range
+attempts outside the plotting frame remain in the 937-attempt total and are
+reported separately. Pointer inspection and keyboard focus update the same
+visible polite status region; focus never moves to the status message. This
+follows the W3C
+[Graphics ARIA](https://www.w3.org/TR/graphics-aria-1.0/) role model and
+[`role=status`](https://www.w3.org/WAI/WCAG21/Techniques/aria/ARIA22) guidance.
+The responsive SVG preserves keyboard focus and chart coordinates at narrow
+viewports. The site has no analytics, account, form, cookie, or live-data
+request.
 
 ## License
 

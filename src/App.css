@@ -9,27 +9,28 @@
 #header .heading {
   font-family: "Source Sans Pro", sans-serif;
   font-weight: 700;
-  font-size: 5rem;
+  font-size: clamp(3rem, 9vw, 5rem);
   line-height: 1;
   color: #737aea;
-  margin-bottom: 0px;
+  margin-bottom: 0;
 }
 #header .about {
-  font-size: 2.5rem;
-  line-height: 1.35rem;
+  font-size: clamp(1.5rem, 5vw, 2.5rem);
+  line-height: 1.1;
   font-weight: 200;
   letter-spacing: -1.5px;
-  margin: 0px 0px 16px 0px;
+  margin: 0 0 16px;
 }
 /* Details */
 #header .details {
   display: flex;
   flex-direction: row;
-  flex-wrap: nowrap;
+  flex-wrap: wrap;
   justify-content: space-between;
   align-items: center;
   align-content: center;
-  padding: 0px;
+  gap: 1rem 2rem;
+  padding: 0;
 }
 #header .details li {
   list-style: none;
@@ -42,12 +43,16 @@
   line-height: 1.5;
 }
 .container {
-  margin-top: 64.32px;
+  width: 100%;
+  max-width: 954px;
+  margin-top: 4rem;
 }
 
-svg {
-  display: flex;
-  overflow: visible;
+.court {
+  display: block;
+  width: 100%;
+  height: auto;
+  overflow: hidden;
 }
 
 .court-outline {
@@ -55,9 +60,55 @@ svg {
   stroke: #3b312b;
 }
 
-.hexbin:focus {
+.hexbin {
+  opacity: 0.4;
+  transition:
+    opacity 120ms ease,
+    stroke-width 120ms ease;
+}
+
+.hexbin[data-zone="2"] {
+  fill: #0047ff;
+}
+
+.hexbin[data-zone="3"] {
+  fill: #db00ff;
+}
+
+.hexbin:hover,
+.hexbin:focus-visible {
   opacity: 1 !important;
   outline: none;
   stroke: #111;
   stroke-width: 2px;
+}
+
+.coverage-note,
+.shot-details {
+  min-height: 1.5rem;
+  margin: 1.5rem 0 0;
+  font-size: 1rem;
+  line-height: 1.5;
+}
+
+.coverage-note {
+  color: #3b312b;
+}
+
+.shot-details {
+  font-weight: 600;
+}
+
+@media (max-width: 640px) {
+  #header .details {
+    justify-content: flex-start;
+  }
+
+  #header .details li {
+    flex: 1 1 9rem;
+  }
+
+  .container {
+    margin-top: 2rem;
+  }
 }
