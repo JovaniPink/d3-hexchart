@@ -1,10 +1,13 @@
 body {
-  height: 100vh;
+  min-height: 100vh;
   margin: 0;
-  display: grid;
-  place-items: center;
   padding: 1rem;
   font-family: "Roboto", sans-serif;
+}
+
+#root {
+  width: min(100%, 1100px);
+  margin: 0 auto;
 }
 
 code {
