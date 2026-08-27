@@ -34,7 +34,7 @@ tests, type-checks the project, and builds the static Vite artifact.
 
 ## Dependency and release contract
 
-- Node 22.22.2 is the minimum supported runtime; Node 24.19.0 is the current local and hosted line.
+- Node 22.22.2 is the minimum supported runtime; Node 24.20.0 is the current local and hosted line.
 - Use Corepack so local and hosted gates run the exact npm release pinned in `package.json`.
 - Keep `.npmrc` fail-closed. Every lockfile package with a lifecycle hook needs an exact-version
   approval or package-name denial in `allowScripts` and must remain covered by

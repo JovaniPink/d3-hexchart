@@ -6,8 +6,12 @@ const requiredSettings = new Map([
   ["strict-allow-scripts", "true"],
 ]);
 
+function readText(path) {
+  return readFileSync(new URL(path, import.meta.url), "utf8");
+}
+
 function readJson(path) {
-  return JSON.parse(readFileSync(new URL(path, import.meta.url), "utf8"));
+  return JSON.parse(readText(path));
 }
 
 function fail(message) {
@@ -17,8 +21,12 @@ function fail(message) {
 
 const packageJson = readJson("../package.json");
 const packageLock = readJson("../package-lock.json");
+const currentNodeVersion = readText("../.nvmrc").trim();
+const workflow = readText("../.github/workflows/ci.yml");
+const readme = readText("../README.md");
+const agentInstructions = readText("../AGENTS.md");
 const npmrc = new Map(
-  readFileSync(new URL("../.npmrc", import.meta.url), "utf8")
+  readText("../.npmrc")
     .split("\n")
     .map((line) => line.trim())
     .filter((line) => line && !line.startsWith("#"))
@@ -53,6 +61,40 @@ for (const [setting, expectedValue] of requiredSettings) {
 
 if (process.env.npm_config_dangerously_allow_all_scripts === "true") {
   fail("dangerously-allow-all-scripts must not bypass the repository policy.");
+}
+
+const minimumNodeVersion = packageJson.engines.node.match(/^\^(\d+\.\d+\.\d+)/)?.[1];
+if (!minimumNodeVersion) {
+  fail(`engines.node must begin with an exact supported-floor range; received ${packageJson.engines.node}.`);
+}
+
+if (!/^\d+\.\d+\.\d+$/.test(currentNodeVersion)) {
+  fail(`.nvmrc must pin an exact Node release; received ${currentNodeVersion || "nothing"}.`);
+}
+
+const runtimeSurfaces = new Map([
+  ["CI matrix", [workflow, `node: [${minimumNodeVersion}, ${currentNodeVersion}]`]],
+  [
+    "README current runtime",
+    [readme, `Node ${currentNodeVersion} is the exact local and hosted line`],
+  ],
+  [
+    "README hosted matrix",
+    [readme, `on Node ${minimumNodeVersion} and Node ${currentNodeVersion}`],
+  ],
+  [
+    "AGENTS runtime contract",
+    [
+      agentInstructions,
+      `Node ${minimumNodeVersion} is the minimum supported runtime; Node ${currentNodeVersion} is the current local and hosted line.`,
+    ],
+  ],
+]);
+
+for (const [surface, [contents, expectedText]] of runtimeSurfaces) {
+  if (!contents.includes(expectedText)) {
+    fail(`${surface} must contain: ${expectedText}`);
+  }
 }
 
 const lockedInstallScripts = Object.entries(packageLock.packages)
