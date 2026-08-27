@@ -9,10 +9,11 @@ and inspection semantics, and `scripts/generate-hexes.mjs` owns deterministic da
 ## Canonical commands
 
 ```sh
-npm ci
-npm run check
-npm run audit:production
-npm run audit:dependencies
+corepack npm ci
+corepack npm run check
+corepack npm run audit:production
+corepack npm run audit:dependencies
+corepack npm run audit:signatures
 ```
 
 `npm run check` verifies the source contract and generated artifact, runs the interaction and data
@@ -33,9 +34,14 @@ tests, type-checks the project, and builds the static Vite artifact.
 
 ## Dependency and release contract
 
-- Node 22.12 is the minimum supported runtime; Node 24 is the current local and hosted line.
+- Node 22.22.2 is the minimum supported runtime; Node 24.19.0 is the current local and hosted line.
+- Use Corepack so local and hosted gates run the exact npm release pinned in `package.json`.
+- Keep `.npmrc` fail-closed. Every lockfile package with a lifecycle hook needs an exact-version
+  approval or package-name denial in `allowScripts` and must remain covered by
+  `npm run package:check`.
 - Keep production-only and complete dependency audits separate. Both use the repository's strict
   low-severity threshold.
+- Keep registry-signature verification separate from vulnerability results and source trust.
 - Renovate may group compatible non-major updates. Every major requires Dependency Dashboard
   approval and still needs exact-head local and hosted validation before merge.
 - A successful build or deploy preview does not prove production publication.

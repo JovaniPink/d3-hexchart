@@ -29,8 +29,8 @@ not be represented as a fresh or independently re-downloadable NBA API export.
 Generate the visualization artifact only through the checked-in pipeline:
 
 ```bash
-npm run data:generate
-npm run data:check
+corepack npm run data:generate
+corepack npm run data:check
 ```
 
 The generator validates the player name, allowed two-/three-point zones, input
@@ -48,13 +48,14 @@ Reference material:
 
 ## Local development
 
-Use Node.js 22.12.0 or newer. Node 24 is the current local line in `.nvmrc`, and
-npm 11.19.0 is the package manager declared by `package.json`. Install the
-locked dependency graph before running the app:
+Use Node.js 22.22.2 or later in the Node 22 line, or Node 24.15.0 or later in the
+Node 24 line. Node 24.19.0 is the exact local and hosted line in `.nvmrc`, and npm
+11.19.1 is pinned by `package.json`. Corepack selects that exact npm release.
+Install the locked dependency graph before running the app:
 
 ```bash
-npm ci
-npm run dev
+corepack npm ci
+corepack npm run dev
 ```
 
 Vite serves the app at [http://localhost:5173](http://localhost:5173) and
@@ -65,18 +66,24 @@ reloads it when source files change.
 Run the same local gates before committing or merging any change:
 
 ```bash
-npm run check
-npm run audit:production
-npm run audit:dependencies
+corepack npm run check
+corepack npm run audit:production
+corepack npm run audit:dependencies
+corepack npm run audit:signatures
 ```
 
-`npm run check` verifies generated-data freshness, runs the Vitest UI and
-preprocessing suites, type-checks the project, and creates the optimized,
-content-hashed static artifact in `dist`. CI repeats that contract from `npm ci`
-on Node 22.12 and Node 24. The production audit covers only code shipped to the
-browser; the complete audit also covers development and build tooling. Both use
-the low-severity threshold. Deployment is a separate operation; a successful
-build does not by itself confirm that `dist` was published.
+`npm run check` first verifies the package-manager and install-script policy,
+then verifies generated-data freshness, runs the Vitest UI and preprocessing
+suites, type-checks the project, and creates the optimized, content-hashed
+static artifact in `dist`. CI repeats that contract from a strict locked install
+on Node 22.22.2 and Node 24.19.0. The production audit covers only code shipped
+to the browser; the complete vulnerability audit also covers development and
+build tooling. Both use the low-severity threshold. The
+[`audit signatures`](https://docs.npmjs.com/cli/v11/commands/npm-audit/#audit-signatures)
+gate separately verifies npm registry signatures for the locked graph; it does
+not claim that an upstream package is safe or independently trustworthy.
+Deployment is a separate operation; a successful build does not by itself
+confirm that `dist` was published.
 
 ## Dependency update policy
 
@@ -85,6 +92,18 @@ npm 12 runtime/tooling line—requires explicit Dependency Dashboard approval.
 Approval may open a compatibility PR; it does not authorize a merge. Each exact
 head must still pass the locked install, data contract, tests, build, both audit
 scopes, and hosted Node matrix without force or legacy-peer resolution.
+
+Dependency lifecycle scripts do not run unless an exact version is approved in
+`allowScripts`; known unnecessary hooks are denied by package name. Vite's
+optional macOS file watcher, [`fsevents`](https://github.com/fsevents/fsevents),
+is explicitly denied lifecycle execution: the locked 2.3.3 tarball already
+supplies its native binary and contains no install hook. The downloaded tarball
+matched the lockfile's SHA-512 integrity and SHA-1 shasum, and its source tag
+resolves to the verified upstream release commit. npm's
+[`strict-allow-scripts`](https://docs.npmjs.com/cli/v11/using-npm/config/#strict-allow-scripts)
+setting makes any unreviewed hook a hard install failure. `.npmrc` also rejects
+unsupported Node runtimes, while `package:check` keeps every decision
+synchronized with the lockfile and rejects policy bypasses during the gate.
 
 ## Accessibility and privacy
 
