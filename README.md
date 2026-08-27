@@ -49,7 +49,7 @@ Reference material:
 ## Local development
 
 Use Node.js 22.22.2 or later in the Node 22 line, or Node 24.15.0 or later in the
-Node 24 line. Node 24.19.0 is the exact local and hosted line in `.nvmrc`, and npm
+Node 24 line. Node 24.20.0 is the exact local and hosted line in `.nvmrc`, and npm
 11.19.1 is pinned by `package.json`. Corepack selects that exact npm release.
 Install the locked dependency graph before running the app:
 
@@ -76,7 +76,7 @@ corepack npm run audit:signatures
 then verifies generated-data freshness, runs the Vitest UI and preprocessing
 suites, type-checks the project, and creates the optimized, content-hashed
 static artifact in `dist`. CI repeats that contract from a strict locked install
-on Node 22.22.2 and Node 24.19.0. The production audit covers only code shipped
+on Node 22.22.2 and Node 24.20.0. The production audit covers only code shipped
 to the browser; the complete vulnerability audit also covers development and
 build tooling. Both use the low-severity threshold. The
 [`audit signatures`](https://docs.npmjs.com/cli/v11/commands/npm-audit/#audit-signatures)
